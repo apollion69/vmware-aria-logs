@@ -1,0 +1,68 @@
+{
+  "name": "vmware-aria-logs",
+  "description": "MCP server for VMware Aria Operations for Logs — log search, incident detection, vROps correlation",
+  "version": "0.1.0",
+  "tools": [
+    {
+      "name": "query_events",
+      "description": "Search log events in VMware Aria Operations for Logs with time range, text filter, and field constraints",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lookback_minutes": { "type": "integer", "default": 60, "description": "How far back to search (minutes)" },
+          "search_term": { "type": "string", "default": "", "description": "Free-text search term" },
+          "limit": { "type": "integer", "default": 100, "description": "Max events to return (max 10000)" },
+          "field_name": { "type": "string", "default": "", "description": "Field constraint name (e.g. hostname, appname)" },
+          "field_operator": { "type": "string", "default": "CONTAINS", "description": "Constraint operator" },
+          "field_value": { "type": "string", "default": "", "description": "Constraint value" }
+        }
+      }
+    },
+    {
+      "name": "get_version",
+      "description": "Get appliance version and probe API surface to determine available features",
+      "inputSchema": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "list_dashboards",
+      "description": "List saved dashboards (legacy vRLIC API, deprecated on 8.18+)",
+      "inputSchema": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "detect_incidents",
+      "description": "Detect mass log incidents using signature clustering (Stormbreaker engine)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lookback_minutes": { "type": "integer", "default": 60, "description": "How far back to search (minutes)" },
+          "search_term": { "type": "string", "default": "", "description": "Free-text search term" },
+          "event_limit": { "type": "integer", "default": 5000, "description": "Max events to fetch for analysis" },
+          "mass_threshold": { "type": "integer", "default": 5, "description": "Min events per signature to qualify as incident" },
+          "max_incidents": { "type": "integer", "default": 20, "description": "Max incidents to return" }
+        }
+      }
+    },
+    {
+      "name": "find_vrops_resources",
+      "description": "Find resources in VMware Aria Operations (vROps) by name for log-to-infrastructure correlation",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Resource name to search for (VM, host, etc.)" }
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "get_vrops_alerts",
+      "description": "Get alerts from VMware Aria Operations for specific resources",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "resource_ids": { "type": "string", "description": "Comma-separated vROps resource IDs" }
+        },
+        "required": ["resource_ids"]
+      }
+    }
+  ]
+}
