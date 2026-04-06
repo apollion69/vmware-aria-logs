@@ -117,11 +117,14 @@ def query_events(
     if field_name and field_value:
         if len(field_name) > 128:
             return json.dumps({"error": "field_name exceeds 128 characters"})
-        constraints = [
-            EventConstraint(
-                field_name=field_name, operator=field_operator, value=field_value
-            )
-        ]
+        try:
+            constraints = [
+                EventConstraint(
+                    field_name=field_name, operator=field_operator, value=field_value
+                )
+            ]
+        except ValueError as exc:
+            return json.dumps({"error": str(exc)})
     # Fetch extra to compensate for duplicates removed by dedup
     fetch_limit = min(limit * 2, 10_000)
     events = client.query_events(

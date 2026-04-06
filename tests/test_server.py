@@ -223,6 +223,32 @@ class TestGetVropsAlertsTool:
         assert "error" in result
 
 
+class TestQueryEventsValidation:
+    @pytest.mark.usefixtures("_env_vars")
+    @patch("vmware_aria_logs.clients.loginsight.LogInsightClient.authenticate")
+    def test_invalid_operator_returns_error(self, mock_auth: MagicMock) -> None:
+        mock_auth.return_value = "fake-token"
+        from vmware_aria_logs.server import query_events
+
+        result = json.loads(
+            query_events(field_name="host", field_operator="INVALID", field_value="x")
+        )
+        assert "error" in result
+
+
+class TestGetVropsAlertsValidation:
+    @pytest.mark.usefixtures("_env_vars")
+    @patch("vmware_aria_logs.clients.vrops.VropsClient.authenticate")
+    def test_too_many_ids_returns_error(self, mock_auth: MagicMock) -> None:
+        mock_auth.return_value = "fake-token"
+        from vmware_aria_logs.server import get_vrops_alerts
+
+        ids = ",".join(f"res-{i}" for i in range(101))
+        result = json.loads(get_vrops_alerts(resource_ids=ids))
+        assert "error" in result
+        assert "100" in result["error"]
+
+
 class TestNoConfigError:
     def test_query_events_fails_without_base_url(
         self, monkeypatch: pytest.MonkeyPatch

@@ -41,6 +41,16 @@ def _mock_response(body: str, status: int = 200) -> object:
 # ---------------------------------------------------------------------------
 
 
+class TestEventConstraintValidation:
+    def test_valid_operator_accepted(self) -> None:
+        c = EventConstraint(field_name="hostname", operator="CONTAINS", value="web")
+        assert c.operator == "CONTAINS"
+
+    def test_invalid_operator_raises(self) -> None:
+        with pytest.raises(ValueError, match="Unknown operator"):
+            EventConstraint(field_name="hostname", operator="FUZZY", value="web")
+
+
 class TestLogInsightClientConstruction:
     def test_strips_trailing_slash(self) -> None:
         client = LogInsightClient(
@@ -60,6 +70,16 @@ class TestLogInsightClientConstruction:
     def test_verify_tls_true(self) -> None:
         client = _make_li_client(verify_tls=True)
         assert client.verify_tls is True
+
+    def test_invalid_scheme_raises(self) -> None:
+        with pytest.raises(LogInsightError, match="http.*scheme"):
+            LogInsightClient(
+                base_url="ftp://li.test", username="admin", password="secret"
+            )
+
+    def test_missing_hostname_raises(self) -> None:
+        with pytest.raises(LogInsightError, match="hostname"):
+            LogInsightClient(base_url="https://", username="admin", password="secret")
 
 
 class TestEventsPathBuilding:
@@ -368,6 +388,12 @@ class TestVropsClientConstruction:
             password="secret",
         )
         assert client.base_url == "https://vrops.example.com"
+
+    def test_invalid_scheme_raises(self) -> None:
+        with pytest.raises(VropsError, match="http.*scheme"):
+            VropsClient(
+                base_url="file:///etc/passwd", username="admin", password="secret"
+            )
 
     def test_defaults(self) -> None:
         client = _make_vrops_client()

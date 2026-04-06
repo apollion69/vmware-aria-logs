@@ -16,7 +16,7 @@ class MassIncident:
     signature: str
     normalized_text: str
     event_count: int
-    affected_sources: list[str]
+    affected_sources: tuple[str, ...]
     sample_text: str
     blast_radius: int  # number of unique sources
 
@@ -58,7 +58,7 @@ def detect_mass_incidents(
                 signature=sig,
                 normalized_text=sig_normalized.get(sig, ""),
                 event_count=len(group),
-                affected_sources=sorted(sources),
+                affected_sources=tuple(sorted(sources)),
                 sample_text=sample[:500],
                 blast_radius=len(sources),
             )
