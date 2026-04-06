@@ -34,7 +34,9 @@ class VropsClient:
         self.base_url = self.base_url.rstrip("/")
         parsed = urllib.parse.urlparse(self.base_url)
         if parsed.scheme not in ("https", "http"):
-            raise VropsError(f"base_url must use http(s) scheme, got: {parsed.scheme!r}")
+            raise VropsError(
+                f"base_url must use http(s) scheme, got: {parsed.scheme!r}"
+            )
         if not parsed.netloc:
             raise VropsError("base_url must include a hostname")
         if self.verify_tls:
@@ -61,11 +63,15 @@ class VropsClient:
             headers["Authorization"] = f"vRealizeOpsToken {self.token}"
         request = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            with urllib.request.urlopen(request, context=self._ssl_ctx, timeout=self.timeout_sec) as resp:
+            with urllib.request.urlopen(
+                request, context=self._ssl_ctx, timeout=self.timeout_sec
+            ) as resp:
                 body = resp.read().decode("utf-8")
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
-            raise VropsError(f"HTTP {exc.code} for {method} {path}: {body[:400]}") from exc
+            raise VropsError(
+                f"HTTP {exc.code} for {method} {path}: {body[:400]}"
+            ) from exc
         except urllib.error.URLError as exc:
             raise VropsError(f"request failed {method} {path}: {exc}") from exc
         try:
@@ -100,10 +106,14 @@ class VropsClient:
         if not self.token:
             self.authenticate()
         params = urllib.parse.urlencode({"name": name, "pageSize": str(page_size)})
-        payload = self._request_json(method="GET", path=f"/suite-api/api/resources?{params}")
+        payload = self._request_json(
+            method="GET", path=f"/suite-api/api/resources?{params}"
+        )
         return _extract_list(payload, "resourceList", "resources")
 
-    def get_alerts(self, resource_ids: list[str], *, page_size: int = 100) -> list[dict[str, Any]]:
+    def get_alerts(
+        self, resource_ids: list[str], *, page_size: int = 100
+    ) -> list[dict[str, Any]]:
         """Get alerts for specific resource IDs."""
         if not resource_ids:
             return []

@@ -15,12 +15,23 @@ class LogInsightError(RuntimeError):
     """Raised when a Log Insight API call fails."""
 
 
-VALID_OPERATORS = frozenset({
-    "CONTAINS", "NOT_CONTAINS", "HAS", "NOT_HAS",
-    "EQ", "NE", "GT", "GE", "LT", "LE",
-    "MATCHES_REGEX", "NOT_MATCHES_REGEX",
-    "EXISTS",
-})
+VALID_OPERATORS = frozenset(
+    {
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "HAS",
+        "NOT_HAS",
+        "EQ",
+        "NE",
+        "GT",
+        "GE",
+        "LT",
+        "LE",
+        "MATCHES_REGEX",
+        "NOT_MATCHES_REGEX",
+        "EXISTS",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -33,7 +44,9 @@ class EventConstraint:
 
     def __post_init__(self) -> None:
         if self.operator not in VALID_OPERATORS:
-            raise ValueError(f"Unknown operator: {self.operator!r}. Valid: {sorted(VALID_OPERATORS)}")
+            raise ValueError(
+                f"Unknown operator: {self.operator!r}. Valid: {sorted(VALID_OPERATORS)}"
+            )
 
 
 @dataclass
@@ -56,7 +69,9 @@ class LogInsightClient:
         self.base_url = self.base_url.rstrip("/")
         parsed = urllib.parse.urlparse(self.base_url)
         if parsed.scheme not in ("https", "http"):
-            raise LogInsightError(f"base_url must use http(s) scheme, got: {parsed.scheme!r}")
+            raise LogInsightError(
+                f"base_url must use http(s) scheme, got: {parsed.scheme!r}"
+            )
         if not parsed.netloc:
             raise LogInsightError("base_url must include a hostname")
         if self.verify_tls:
@@ -83,7 +98,9 @@ class LogInsightClient:
             headers["Authorization"] = f"Bearer {self.token}"
         request = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            with urllib.request.urlopen(request, context=self._ssl_ctx, timeout=self.timeout_sec) as resp:
+            with urllib.request.urlopen(
+                request, context=self._ssl_ctx, timeout=self.timeout_sec
+            ) as resp:
                 body = resp.read().decode("utf-8")
                 return int(getattr(resp, "status", resp.getcode())), body
         except urllib.error.HTTPError as exc:
@@ -105,7 +122,9 @@ class LogInsightClient:
         try:
             return json.loads(body)
         except json.JSONDecodeError as exc:
-            raise LogInsightError(f"non-JSON response for {path}: {body[:400]}") from exc
+            raise LogInsightError(
+                f"non-JSON response for {path}: {body[:400]}"
+            ) from exc
 
     def authenticate(self) -> str:
         """Obtain a session token. Returns the token string."""
@@ -142,15 +161,23 @@ class LogInsightClient:
             urllib.parse.quote(f"LAST {max(lookback_minutes, 1) * 60_000}", safe=""),
         ]
         if term:
-            parts.extend([
-                urllib.parse.quote("text", safe=""),
-                urllib.parse.quote("CONTAINS", safe="") + "%20" + urllib.parse.quote(term.strip(), safe=""),
-            ])
+            parts.extend(
+                [
+                    urllib.parse.quote("text", safe=""),
+                    urllib.parse.quote("CONTAINS", safe="")
+                    + "%20"
+                    + urllib.parse.quote(term.strip(), safe=""),
+                ]
+            )
         for c in constraints or []:
-            parts.extend([
-                urllib.parse.quote(c.field_name, safe=""),
-                urllib.parse.quote(c.operator, safe="") + "%20" + urllib.parse.quote(c.value, safe=""),
-            ])
+            parts.extend(
+                [
+                    urllib.parse.quote(c.field_name, safe=""),
+                    urllib.parse.quote(c.operator, safe="")
+                    + "%20"
+                    + urllib.parse.quote(c.value, safe=""),
+                ]
+            )
         return f"/api/v2/events/{'/'.join(parts)}?limit={int(limit)}"
 
     def query_events(
@@ -212,11 +239,17 @@ class LogInsightClient:
         """
         if not self.token:
             self.authenticate()
-        result = self.probe_endpoint(method="GET", path="/vrlic/api/v1/content/dashboards")
+        result = self.probe_endpoint(
+            method="GET", path="/vrlic/api/v1/content/dashboards"
+        )
         if result["verdict"] == "available" and isinstance(result["parsed"], list):
             return result["parsed"]
         if isinstance(result["parsed"], dict):
-            items = result["parsed"].get("dashboards") or result["parsed"].get("content") or []
+            items = (
+                result["parsed"].get("dashboards")
+                or result["parsed"].get("content")
+                or []
+            )
             if isinstance(items, list):
                 return items
         return []

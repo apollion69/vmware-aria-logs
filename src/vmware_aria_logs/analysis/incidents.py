@@ -53,14 +53,16 @@ def detect_mass_incidents(
             continue
         sources = list({extract_source(e) for e in group if extract_source(e)})
         sample = extract_text(group[0])
-        incidents.append(MassIncident(
-            signature=sig,
-            normalized_text=sig_normalized.get(sig, ""),
-            event_count=len(group),
-            affected_sources=sorted(sources),
-            sample_text=sample[:500],
-            blast_radius=len(sources),
-        ))
+        incidents.append(
+            MassIncident(
+                signature=sig,
+                normalized_text=sig_normalized.get(sig, ""),
+                event_count=len(group),
+                affected_sources=sorted(sources),
+                sample_text=sample[:500],
+                blast_radius=len(sources),
+            )
+        )
 
     incidents.sort(key=lambda i: i.event_count, reverse=True)
     return incidents[:max_incidents]

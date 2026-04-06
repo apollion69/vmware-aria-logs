@@ -78,8 +78,12 @@ class TestEventsPathBuilding:
 
     def test_with_constraints(self) -> None:
         client = _make_li_client()
-        constraints = [EventConstraint(field_name="hostname", operator="CONTAINS", value="web")]
-        path = client._build_events_path(lookback_minutes=60, constraints=constraints, limit=100)
+        constraints = [
+            EventConstraint(field_name="hostname", operator="CONTAINS", value="web")
+        ]
+        path = client._build_events_path(
+            lookback_minutes=60, constraints=constraints, limit=100
+        )
         assert "hostname" in path
         assert "CONTAINS" in path
 
@@ -160,7 +164,11 @@ class TestLogInsightRequestJson:
     def test_http_error_raises(self, monkeypatch: pytest.MonkeyPatch) -> None:
         def raise_http_error(req: object, **kw: object) -> object:
             raise urllib.error.HTTPError(
-                "url", 500, "ISE", {}, io.BytesIO(b"server error")  # type: ignore[arg-type]
+                "url",
+                500,
+                "ISE",
+                {},
+                io.BytesIO(b"server error"),  # type: ignore[arg-type]
             )
 
         client = _make_li_client()
@@ -208,7 +216,9 @@ class TestLogInsightAuthenticate:
 
 
 class TestLogInsightQueryEvents:
-    def test_auto_authenticates_and_returns_events(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_auto_authenticates_and_returns_events(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         call_count = {"n": 0}
 
         def fake_urlopen(req: object, **kw: object) -> object:
@@ -216,7 +226,9 @@ class TestLogInsightQueryEvents:
             if call_count["n"] == 1:
                 return _mock_response('{"sessionId": "tok"}', 200)
             return _mock_response(
-                json.dumps({"events": [{"text": "err", "source": "h1", "timestamp": "1"}]}),
+                json.dumps(
+                    {"events": [{"text": "err", "source": "h1", "timestamp": "1"}]}
+                ),
                 200,
             )
 
@@ -287,7 +299,9 @@ class TestLogInsightProbeEndpoint:
 
     def test_auth_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
         def raise_401(req: object, **kw: object) -> object:
-            raise urllib.error.HTTPError("url", 401, "Unauthorized", {}, io.BytesIO(b"denied"))  # type: ignore[arg-type]
+            raise urllib.error.HTTPError(
+                "url", 401, "Unauthorized", {}, io.BytesIO(b"denied")
+            )  # type: ignore[arg-type]
 
         client = _make_li_client()
         monkeypatch.setattr("urllib.request.urlopen", raise_401)
@@ -435,7 +449,9 @@ class TestVropsAuthenticate:
 
 
 class TestVropsFindResources:
-    def test_auto_authenticates_and_returns(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_auto_authenticates_and_returns(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         calls = {"n": 0}
 
         def fake_urlopen(req: object, **kw: object) -> object:
@@ -443,7 +459,13 @@ class TestVropsFindResources:
             if calls["n"] == 1:
                 return _mock_response('{"token": "t"}', 200)
             return _mock_response(
-                json.dumps({"resourceList": [{"identifier": "r1", "resourceKey": {"name": "vm1"}}]}),
+                json.dumps(
+                    {
+                        "resourceList": [
+                            {"identifier": "r1", "resourceKey": {"name": "vm1"}}
+                        ]
+                    }
+                ),
                 200,
             )
 

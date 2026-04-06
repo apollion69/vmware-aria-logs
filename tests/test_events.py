@@ -59,7 +59,9 @@ class TestEventSignature:
         """With include_source=True, different hosts get different sigs."""
         e1 = {"text": "Error on host A", "source": "host1"}
         e2 = {"text": "Error on host A", "source": "host2"}
-        assert event_signature(e1, include_source=True) != event_signature(e2, include_source=True)
+        assert event_signature(e1, include_source=True) != event_signature(
+            e2, include_source=True
+        )
 
     def test_variable_parts_normalized(self) -> None:
         e1 = {"text": "Error on 10.0.0.1", "source": "host1"}

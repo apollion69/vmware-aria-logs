@@ -7,14 +7,12 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any
-
 from mcp.server.fastmcp import FastMCP
 
 from .analysis.events import dedupe_events
 from .analysis.incidents import detect_mass_incidents, incidents_to_dicts
-from .clients.loginsight import EventConstraint, LogInsightClient, LogInsightError, VALID_OPERATORS
-from .clients.vrops import VropsClient, VropsError
+from .clients.loginsight import EventConstraint, LogInsightClient, LogInsightError
+from .clients.vrops import VropsClient
 
 
 def _parse_int_env(name: str, default: int) -> int:
@@ -24,6 +22,7 @@ def _parse_int_env(name: str, default: int) -> int:
         return int(raw)
     except ValueError:
         raise LogInsightError(f"{name} must be an integer, got: {raw!r}") from None
+
 
 mcp = FastMCP(
     "vmware-aria-logs",
@@ -41,15 +40,24 @@ _vrops_client: VropsClient | None = None
 def _get_li_client() -> LogInsightClient:
     global _li_client
     if _li_client is None:
-        base_url = os.environ.get("LI_BASE_URL") or os.environ.get("LI_API_BASE_URL") or ""
+        base_url = (
+            os.environ.get("LI_BASE_URL") or os.environ.get("LI_API_BASE_URL") or ""
+        )
         if not base_url:
             raise LogInsightError("LI_BASE_URL environment variable is required")
         _li_client = LogInsightClient(
             base_url=base_url,
-            username=os.environ.get("LI_USERNAME") or os.environ.get("LI_API_USER") or "admin",
-            password=os.environ.get("LI_PASSWORD") or os.environ.get("LI_API_PASSWORD") or "",
-            provider=os.environ.get("LI_PROVIDER") or os.environ.get("LI_API_PROVIDER") or "Local",
-            verify_tls=os.environ.get("LI_VERIFY_TLS", "false").lower() in ("true", "1", "yes"),
+            username=os.environ.get("LI_USERNAME")
+            or os.environ.get("LI_API_USER")
+            or "admin",
+            password=os.environ.get("LI_PASSWORD")
+            or os.environ.get("LI_API_PASSWORD")
+            or "",
+            provider=os.environ.get("LI_PROVIDER")
+            or os.environ.get("LI_API_PROVIDER")
+            or "Local",
+            verify_tls=os.environ.get("LI_VERIFY_TLS", "false").lower()
+            in ("true", "1", "yes"),
             timeout_sec=_parse_int_env("LI_TIMEOUT_SEC", 30),
         )
     return _li_client
@@ -63,10 +71,13 @@ def _get_vrops_client() -> VropsClient | None:
             return None
         _vrops_client = VropsClient(
             base_url=base_url,
-            username=os.environ.get("VROPS_USERNAME") or os.environ.get("VROPS_USER") or "admin",
+            username=os.environ.get("VROPS_USERNAME")
+            or os.environ.get("VROPS_USER")
+            or "admin",
             password=os.environ.get("VROPS_PASSWORD") or "",
             auth_source=os.environ.get("VROPS_AUTH_SOURCE") or "local",
-            verify_tls=os.environ.get("VROPS_VERIFY_TLS", "false").lower() in ("true", "1", "yes"),
+            verify_tls=os.environ.get("VROPS_VERIFY_TLS", "false").lower()
+            in ("true", "1", "yes"),
             timeout_sec=_parse_int_env("VROPS_TIMEOUT_SEC", 30),
         )
     return _vrops_client
@@ -106,7 +117,11 @@ def query_events(
     if field_name and field_value:
         if len(field_name) > 128:
             return json.dumps({"error": "field_name exceeds 128 characters"})
-        constraints = [EventConstraint(field_name=field_name, operator=field_operator, value=field_value)]
+        constraints = [
+            EventConstraint(
+                field_name=field_name, operator=field_operator, value=field_value
+            )
+        ]
     # Fetch extra to compensate for duplicates removed by dedup
     fetch_limit = min(limit * 2, 10_000)
     events = client.query_events(
@@ -131,8 +146,12 @@ def get_version() -> str:
         client.authenticate()
 
     version_info = client.probe_endpoint(method="GET", path="/api/v2/version")
-    dashboards = client.probe_endpoint(method="GET", path="/vrlic/api/v1/content/dashboards")
-    queries = client.probe_endpoint(method="GET", path="/vrlic/api/v1/query-definitions")
+    dashboards = client.probe_endpoint(
+        method="GET", path="/vrlic/api/v1/content/dashboards"
+    )
+    queries = client.probe_endpoint(
+        method="GET", path="/vrlic/api/v1/query-definitions"
+    )
 
     result = {
         "base_url": client.base_url,
@@ -200,12 +219,16 @@ def detect_incidents(
         mass_threshold=mass_threshold,
         max_incidents=max_incidents,
     )
-    return json.dumps({
-        "total_events_analyzed": len(events),
-        "incidents_found": len(incidents),
-        "lookback_minutes": lookback_minutes,
-        "incidents": incidents_to_dicts(incidents),
-    }, ensure_ascii=False, indent=2)
+    return json.dumps(
+        {
+            "total_events_analyzed": len(events),
+            "incidents_found": len(incidents),
+            "lookback_minutes": lookback_minutes,
+            "incidents": incidents_to_dicts(incidents),
+        },
+        ensure_ascii=False,
+        indent=2,
+    )
 
 
 @mcp.tool()
