@@ -135,8 +135,9 @@ def get_version() -> str:
 def list_dashboards() -> str:
     """List saved dashboards from Aria Operations for Logs.
 
-    Uses the legacy vRLIC API (may not be available on all deployments).
-    Returns dashboard names, IDs, and ownership info.
+    Uses the legacy vRLIC API (``/vrlic/api/v1/content/dashboards``).
+    This endpoint was deprecated in Aria Operations for Logs 8.18+
+    and will return an empty result on newer appliances.
     """
     client = _get_li_client()
     dashboards = client.list_dashboards()

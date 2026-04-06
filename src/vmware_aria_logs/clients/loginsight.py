@@ -185,7 +185,12 @@ class LogInsightClient:
         }
 
     def list_dashboards(self) -> list[dict[str, Any]]:
-        """List saved dashboards (legacy vRLIC API, may not be available)."""
+        """List saved dashboards via the legacy vRLIC API.
+
+        Note: The ``/vrlic/api/v1/content/dashboards`` endpoint was deprecated
+        starting in Aria Operations for Logs 8.18.  On 8.18+ appliances this
+        method will return an empty list (probe verdict "unavailable").
+        """
         if not self.token:
             self.authenticate()
         result = self.probe_endpoint(method="GET", path="/vrlic/api/v1/content/dashboards")

@@ -7,7 +7,7 @@ MCP server for querying and analyzing logs from VMware Aria Operations for Logs 
 - **Log Search** — Query events with time range, text filters, and field constraints via Log Insight API v2
 - **Incident Detection** — Signature-based clustering to identify mass log incidents (Stormbreaker engine)
 - **API Surface Probe** — Detect appliance version and available API endpoints
-- **Dashboard Listing** — Enumerate saved dashboards (legacy vRLIC API)
+- **Dashboard Listing** — Enumerate saved dashboards (legacy vRLIC API, deprecated on 8.18+)
 - **vROps Correlation** — Cross-reference log entities with Aria Operations resources and alerts
 
 ## Quick Start
@@ -29,7 +29,7 @@ uvx vmware-aria-logs
 |------|-------------|
 | `query_events` | Search log events with time range, text filter, field constraints |
 | `get_version` | Get appliance version and probe API surface |
-| `list_dashboards` | List saved dashboards (legacy API) |
+| `list_dashboards` | List saved dashboards (legacy vRLIC API, deprecated on 8.18+) |
 | `detect_incidents` | Mass incident detection via signature clustering |
 | `find_vrops_resources` | Find entities in Aria Operations by name |
 | `get_vrops_alerts` | Get alerts for specific vROps resources |
