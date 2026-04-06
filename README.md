@@ -3,7 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/vmware-aria-logs)](https://pypi.org/project/vmware-aria-logs/)
 [![Python 3.11+](https://img.shields.io/pypi/pyversions/vmware-aria-logs)](https://pypi.org/project/vmware-aria-logs/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Smithery](https://smithery.ai/badge/vmware-aria-logs)](https://smithery.ai/server/vmware-aria-logs)
+[![Smithery](https://smithery.ai/badge/apollion69/vmware-aria-logs)](https://smithery.ai/server/apollion69/vmware-aria-logs)
 
 MCP server for querying and analyzing logs from **VMware Aria Operations for Logs** (formerly vRealize Log Insight). Provides log search, mass incident detection, and optional VMware Aria Operations (vROps) correlation.
 
@@ -106,7 +106,7 @@ VMware Aria Operations for Logs (Log Insight) is widely deployed in enterprise V
 
 ## Also Available On
 
-- [Smithery](https://smithery.ai/server/vmware-aria-logs)
+- [Smithery](https://smithery.ai/server/apollion69/vmware-aria-logs)
 - [Glama](https://glama.ai/mcp/servers/apollion69/vmware-aria-logs)
 - [PyPI](https://pypi.org/project/vmware-aria-logs/)
 
