@@ -13,8 +13,17 @@ from mcp.server.fastmcp import FastMCP
 
 from .analysis.events import dedupe_events
 from .analysis.incidents import detect_mass_incidents, incidents_to_dicts
-from .clients.loginsight import EventConstraint, LogInsightClient, LogInsightError
+from .clients.loginsight import EventConstraint, LogInsightClient, LogInsightError, VALID_OPERATORS
 from .clients.vrops import VropsClient, VropsError
+
+
+def _parse_int_env(name: str, default: int) -> int:
+    """Parse an integer environment variable with a clear error on bad input."""
+    raw = os.environ.get(name, str(default))
+    try:
+        return int(raw)
+    except ValueError:
+        raise LogInsightError(f"{name} must be an integer, got: {raw!r}") from None
 
 mcp = FastMCP(
     "vmware-aria-logs",
@@ -41,7 +50,7 @@ def _get_li_client() -> LogInsightClient:
             password=os.environ.get("LI_PASSWORD") or os.environ.get("LI_API_PASSWORD") or "",
             provider=os.environ.get("LI_PROVIDER") or os.environ.get("LI_API_PROVIDER") or "Local",
             verify_tls=os.environ.get("LI_VERIFY_TLS", "false").lower() in ("true", "1", "yes"),
-            timeout_sec=int(os.environ.get("LI_TIMEOUT_SEC", "30")),
+            timeout_sec=_parse_int_env("LI_TIMEOUT_SEC", 30),
         )
     return _li_client
 
@@ -58,7 +67,7 @@ def _get_vrops_client() -> VropsClient | None:
             password=os.environ.get("VROPS_PASSWORD") or "",
             auth_source=os.environ.get("VROPS_AUTH_SOURCE") or "local",
             verify_tls=os.environ.get("VROPS_VERIFY_TLS", "false").lower() in ("true", "1", "yes"),
-            timeout_sec=int(os.environ.get("VROPS_TIMEOUT_SEC", "30")),
+            timeout_sec=_parse_int_env("VROPS_TIMEOUT_SEC", 30),
         )
     return _vrops_client
 
@@ -94,11 +103,13 @@ def query_events(
     constraints = None
     if field_name and field_value:
         constraints = [EventConstraint(field_name=field_name, operator=field_operator, value=field_value)]
+    # Fetch extra to compensate for duplicates removed by dedup
+    fetch_limit = min(limit * 2, 10_000)
     events = client.query_events(
         lookback_minutes=lookback_minutes,
         term=search_term,
         constraints=constraints,
-        limit=min(limit, 10_000),
+        limit=fetch_limit,
     )
     events = dedupe_events(events)
     return json.dumps(events[:limit], ensure_ascii=False, indent=2)

@@ -15,6 +15,14 @@ class LogInsightError(RuntimeError):
     """Raised when a Log Insight API call fails."""
 
 
+VALID_OPERATORS = frozenset({
+    "CONTAINS", "NOT_CONTAINS", "HAS", "NOT_HAS",
+    "EQ", "NE", "GT", "GE", "LT", "LE",
+    "MATCHES_REGEX", "NOT_MATCHES_REGEX",
+    "EXISTS",
+})
+
+
 @dataclass(frozen=True)
 class EventConstraint:
     """A single field constraint for event queries."""
@@ -22,6 +30,10 @@ class EventConstraint:
     field_name: str
     operator: str  # CONTAINS, NOT_CONTAINS, HAS, etc.
     value: str
+
+    def __post_init__(self) -> None:
+        if self.operator not in VALID_OPERATORS:
+            raise ValueError(f"Unknown operator: {self.operator!r}. Valid: {sorted(VALID_OPERATORS)}")
 
 
 @dataclass
@@ -45,7 +57,9 @@ class LogInsightClient:
         if self.verify_tls:
             self._ssl_ctx = ssl.create_default_context()
         else:
-            self._ssl_ctx = ssl._create_unverified_context()
+            self._ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            self._ssl_ctx.check_hostname = False
+            self._ssl_ctx.verify_mode = ssl.CERT_NONE
 
     def _request_raw(
         self,

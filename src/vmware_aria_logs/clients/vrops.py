@@ -35,7 +35,9 @@ class VropsClient:
         if self.verify_tls:
             self._ssl_ctx = ssl.create_default_context()
         else:
-            self._ssl_ctx = ssl._create_unverified_context()
+            self._ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            self._ssl_ctx.check_hostname = False
+            self._ssl_ctx.verify_mode = ssl.CERT_NONE
 
     def _request_json(
         self,
