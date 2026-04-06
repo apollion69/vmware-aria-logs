@@ -24,7 +24,7 @@ class VropsClient:
 
     base_url: str
     username: str
-    password: str
+    password: str = field(default="", repr=False)
     auth_source: str = "local"
     verify_tls: bool = False
     timeout_sec: int = 30
@@ -32,6 +32,11 @@ class VropsClient:
 
     def __post_init__(self) -> None:
         self.base_url = self.base_url.rstrip("/")
+        parsed = urllib.parse.urlparse(self.base_url)
+        if parsed.scheme not in ("https", "http"):
+            raise VropsError(f"base_url must use http(s) scheme, got: {parsed.scheme!r}")
+        if not parsed.netloc:
+            raise VropsError("base_url must include a hostname")
         if self.verify_tls:
             self._ssl_ctx = ssl.create_default_context()
         else:

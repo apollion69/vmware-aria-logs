@@ -64,6 +64,7 @@ vmware-aria-logs
 | `LI_PASSWORD` | API password | — |
 | `LI_PROVIDER` | Auth provider (Local, ActiveDirectory) | `Local` |
 | `LI_VERIFY_TLS` | Verify TLS certificates | `false` |
+| `LI_TIMEOUT_SEC` | HTTP request timeout (seconds) | `30` |
 
 ### Optional (vROps Correlation)
 
@@ -73,6 +74,8 @@ vmware-aria-logs
 | `VROPS_USERNAME` | vROps username | `admin` |
 | `VROPS_PASSWORD` | vROps password | — |
 | `VROPS_AUTH_SOURCE` | Auth source | `local` |
+| `VROPS_VERIFY_TLS` | Verify TLS certificates | `false` |
+| `VROPS_TIMEOUT_SEC` | HTTP request timeout (seconds) | `30` |
 
 ## Claude Code / MCP Client Configuration
 

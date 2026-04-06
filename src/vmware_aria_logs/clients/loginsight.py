@@ -46,7 +46,7 @@ class LogInsightClient:
 
     base_url: str
     username: str
-    password: str
+    password: str = field(default="", repr=False)
     provider: str = "Local"
     verify_tls: bool = False
     timeout_sec: int = 30
@@ -54,6 +54,11 @@ class LogInsightClient:
 
     def __post_init__(self) -> None:
         self.base_url = self.base_url.rstrip("/")
+        parsed = urllib.parse.urlparse(self.base_url)
+        if parsed.scheme not in ("https", "http"):
+            raise LogInsightError(f"base_url must use http(s) scheme, got: {parsed.scheme!r}")
+        if not parsed.netloc:
+            raise LogInsightError("base_url must include a hostname")
         if self.verify_tls:
             self._ssl_ctx = ssl.create_default_context()
         else:
@@ -139,12 +144,12 @@ class LogInsightClient:
         if term:
             parts.extend([
                 urllib.parse.quote("text", safe=""),
-                urllib.parse.quote(f"CONTAINS {term}", safe=""),
+                urllib.parse.quote("CONTAINS", safe="") + "%20" + urllib.parse.quote(term.strip(), safe=""),
             ])
         for c in constraints or []:
             parts.extend([
                 urllib.parse.quote(c.field_name, safe=""),
-                urllib.parse.quote(f"{c.operator} {c.value}", safe=""),
+                urllib.parse.quote(c.operator, safe="") + "%20" + urllib.parse.quote(c.value, safe=""),
             ])
         return f"/api/v2/events/{'/'.join(parts)}?limit={int(limit)}"
 

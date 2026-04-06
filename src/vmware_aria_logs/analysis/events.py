@@ -88,7 +88,7 @@ def dedupe_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         source = extract_source(event)
         ts = str(event.get("timestamp") or "")
         key = f"{source}:{ts}:{text[:200]}"
-        digest = hashlib.md5(key.encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()[:32]
         if digest not in seen:
             seen.add(digest)
             result.append(event)

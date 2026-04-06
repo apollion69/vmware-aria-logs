@@ -100,8 +100,12 @@ def query_events(
         JSON array of log events with text, source, timestamp, and fields.
     """
     client = _get_li_client()
+    lookback_minutes = max(1, min(lookback_minutes, 10_080))  # cap at 1 week
+    limit = max(1, min(limit, 10_000))
     constraints = None
     if field_name and field_value:
+        if len(field_name) > 128:
+            return json.dumps({"error": "field_name exceeds 128 characters"})
         constraints = [EventConstraint(field_name=field_name, operator=field_operator, value=field_value)]
     # Fetch extra to compensate for duplicates removed by dedup
     fetch_limit = min(limit * 2, 10_000)
@@ -182,6 +186,9 @@ def detect_incidents(
         blast radius (affected sources), and sample text.
     """
     client = _get_li_client()
+    lookback_minutes = max(1, min(lookback_minutes, 10_080))
+    mass_threshold = max(1, mass_threshold)
+    max_incidents = max(1, min(max_incidents, 100))
     events = client.query_events(
         lookback_minutes=lookback_minutes,
         term=search_term,
@@ -247,6 +254,8 @@ def get_vrops_alerts(resource_ids: str) -> str:
     ids = [rid.strip() for rid in resource_ids.split(",") if rid.strip()]
     if not ids:
         return json.dumps({"error": "No resource IDs provided"})
+    if len(ids) > 100:
+        return json.dumps({"error": "Too many resource IDs (max 100)"})
     alerts = client.get_alerts(ids)
     compact = [
         {

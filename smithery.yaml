@@ -16,6 +16,7 @@ startCommand:
         description: "API username"
       liPassword:
         type: string
+        format: password
         description: "API password"
       liProvider:
         type: string
@@ -30,6 +31,7 @@ startCommand:
         description: "vROps username"
       vropsPassword:
         type: string
+        format: password
         description: "vROps password"
   commandFunction: |-
     (config) => ({
