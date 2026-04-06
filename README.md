@@ -1,6 +1,13 @@
 # VMware Aria Operations for Logs — MCP Server
 
-MCP server for querying and analyzing logs from VMware Aria Operations for Logs (formerly vRealize Log Insight). Provides log search, mass incident detection, and optional VMware Aria Operations (vROps) correlation.
+[![PyPI version](https://img.shields.io/pypi/v/vmware-aria-logs)](https://pypi.org/project/vmware-aria-logs/)
+[![Python 3.11+](https://img.shields.io/pypi/pyversions/vmware-aria-logs)](https://pypi.org/project/vmware-aria-logs/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Smithery](https://smithery.ai/badge/vmware-aria-logs)](https://smithery.ai/server/vmware-aria-logs)
+
+MCP server for querying and analyzing logs from **VMware Aria Operations for Logs** (formerly vRealize Log Insight). Provides log search, mass incident detection, and optional VMware Aria Operations (vROps) correlation.
+
+Built for use with [Claude Code](https://claude.ai/code), [Claude Desktop](https://claude.ai/download), [LobeChat](https://github.com/lobehub/lobe-chat), and any MCP-compatible client.
 
 ## Features
 
@@ -12,15 +19,27 @@ MCP server for querying and analyzing logs from VMware Aria Operations for Logs 
 
 ## Quick Start
 
+### Install via uvx (recommended)
+
 ```bash
-# Configure credentials
+uvx vmware-aria-logs
+```
+
+### Install via pip
+
+```bash
+pip install vmware-aria-logs
+```
+
+### Run with environment variables
+
+```bash
 export LI_BASE_URL=https://loginsight.example.com
 export LI_USERNAME=admin
 export LI_PASSWORD=your-password
 export LI_PROVIDER=Local
 
-# Run
-uvx vmware-aria-logs
+vmware-aria-logs
 ```
 
 ## MCP Tools
@@ -72,6 +91,21 @@ uvx vmware-aria-logs
   }
 }
 ```
+
+## Why This Server?
+
+VMware Aria Operations for Logs (Log Insight) is widely deployed in enterprise VMware environments, but lacks modern AI-assisted log analysis tooling. This MCP server bridges that gap:
+
+- **Zero dependencies** beyond the MCP SDK — uses Python stdlib `urllib` for HTTP
+- **Stormbreaker engine** — unique signature-based clustering that finds mass incidents humans miss
+- **vROps correlation** — cross-reference log events with infrastructure health in a single conversation
+- **Works on v8.x+** — tested on Aria Operations for Logs 8.18.3, gracefully degrades deprecated APIs
+
+## Also Available On
+
+- [Smithery](https://smithery.ai/server/vmware-aria-logs)
+- [Glama](https://glama.ai/mcp/servers/apollion69/vmware-aria-logs)
+- [PyPI](https://pypi.org/project/vmware-aria-logs/)
 
 ## License
 

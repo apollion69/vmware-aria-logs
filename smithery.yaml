@@ -1,0 +1,49 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - liBaseUrl
+      - liPassword
+    properties:
+      liBaseUrl:
+        type: string
+        description: "VMware Aria Operations for Logs URL (e.g. https://loginsight.example.com)"
+      liUsername:
+        type: string
+        default: "admin"
+        description: "API username"
+      liPassword:
+        type: string
+        description: "API password"
+      liProvider:
+        type: string
+        default: "Local"
+        description: "Auth provider (Local, ActiveDirectory)"
+      vropsBaseUrl:
+        type: string
+        description: "Aria Operations URL for cross-correlation (optional)"
+      vropsUsername:
+        type: string
+        default: "admin"
+        description: "vROps username"
+      vropsPassword:
+        type: string
+        description: "vROps password"
+  commandFunction: |-
+    (config) => ({
+      command: 'uvx',
+      args: ['vmware-aria-logs'],
+      env: {
+        LI_BASE_URL: config.liBaseUrl,
+        LI_USERNAME: config.liUsername || 'admin',
+        LI_PASSWORD: config.liPassword,
+        LI_PROVIDER: config.liProvider || 'Local',
+        ...(config.vropsBaseUrl ? {
+          VROPS_BASE_URL: config.vropsBaseUrl,
+          VROPS_USERNAME: config.vropsUsername || 'admin',
+          VROPS_PASSWORD: config.vropsPassword || ''
+        } : {})
+      }
+    })

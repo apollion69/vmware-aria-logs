@@ -17,6 +17,11 @@ dependencies = [
     "mcp[cli]>=1.0.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/apollion69/vmware-aria-logs"
+Repository = "https://github.com/apollion69/vmware-aria-logs"
+Issues = "https://github.com/apollion69/vmware-aria-logs/issues"
+
 [project.scripts]
 vmware-aria-logs = "vmware_aria_logs.server:main"
 
