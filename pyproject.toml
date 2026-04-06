@@ -1,0 +1,34 @@
+[project]
+name = "vmware-aria-logs"
+version = "0.1.0"
+description = "MCP server for VMware Aria Operations for Logs (formerly vRealize Log Insight)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "apollion69" }]
+keywords = ["mcp", "vmware", "aria", "log-insight", "vrli", "observability"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Monitoring",
+]
+dependencies = [
+    "mcp[cli]>=1.0.0",
+]
+
+[project.scripts]
+vmware-aria-logs = "vmware_aria_logs.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vmware_aria_logs"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=7.1.0",
+]
